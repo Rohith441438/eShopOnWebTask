@@ -1,4 +1,7 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Text;
+using System.Text.Json;
+using Ardalis.GuardClauses;
+using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -53,6 +56,16 @@ public class CheckoutModel : PageModel
             }
 
             var updateModel = items.ToDictionary(b => b.Id.ToString(), b => b.Quantity);
+            
+            var orderItems = new OrderModel
+            {
+                OrderId = BasketModel.Id,
+                UserId = BasketModel.BuyerId,
+                Items = items.Select(x => new Item { Id = x.Id, Quantity = x.Quantity })
+            };
+
+            await UploadToOrderItemsReserver(orderItems);
+
             await _basketService.SetQuantities(BasketModel.Id, updateModel);
             await _orderService.CreateOrderAsync(BasketModel.Id, new Address("123 Main St.", "Kent", "OH", "United States", "44240"));
             await _basketService.DeleteBasketAsync(BasketModel.Id);
@@ -65,6 +78,19 @@ public class CheckoutModel : PageModel
         }
 
         return RedirectToPage("Success");
+    }
+
+    private async Task UploadToOrderItemsReserver(OrderModel orderItems)
+    {
+        using (HttpClient httpClient = new HttpClient()) { 
+
+            var functionurl = "http://localhost:7244/api/Function1";
+
+            //var content = new StringContent(JsonSerializer.Serialize(orderItems), Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = httpClient.PostAsJsonAsync(functionurl, orderItems).Result;
+            _logger.LogInformation(response.Content.ToString());
+        }
     }
 
     private async Task SetBasketModelAsync()
@@ -94,4 +120,17 @@ public class CheckoutModel : PageModel
         cookieOptions.Expires = DateTime.Today.AddYears(10);
         Response.Cookies.Append(Constants.BASKET_COOKIENAME, _username, cookieOptions);
     }
+}
+
+public class OrderModel
+{
+    public int OrderId { get; set; }
+    public string UserId { get; set; }
+    public IEnumerable<Item> Items { get; set; }
+}
+
+public class Item
+{
+    public int Id { get; set; }
+    public int Quantity { get; set; }
 }
