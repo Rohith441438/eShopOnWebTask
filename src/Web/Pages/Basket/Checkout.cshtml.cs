@@ -84,7 +84,7 @@ public class CheckoutModel : PageModel
     {
         using (HttpClient httpClient = new HttpClient()) { 
 
-            var functionurl = "http://localhost:7244/api/Function1";
+            var functionurl = "https://eshoponwebtaskfunctionapp.azurewebsites.net/api/OrderModelUpload?code=-vr_jqDEcT_lMruys_-yaUPvrxV1H78BYyQJQk4y8qWgAzFuom9LlA%3D%3D";
 
             //var content = new StringContent(JsonSerializer.Serialize(orderItems), Encoding.UTF8, "application/json");
 
