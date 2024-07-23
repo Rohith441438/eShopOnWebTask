@@ -1,4 +1,8 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.Json;
+using Ardalis.GuardClauses;
+using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Exceptions;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
+using Microsoft.eShopWeb.ApplicationCore.Services;
 using Microsoft.eShopWeb.Infrastructure.Identity;
 using Microsoft.eShopWeb.Web.Interfaces;
 
@@ -19,18 +24,24 @@ public class CheckoutModel : PageModel
     private readonly IOrderService _orderService;
     private string? _username = null;
     private readonly IBasketViewModelService _basketViewModelService;
+    private readonly IOrderUploadService _orderUploadService;
+    private readonly ICosmosDbService _cosmosDbService;
     private readonly IAppLogger<CheckoutModel> _logger;
 
     public CheckoutModel(IBasketService basketService,
         IBasketViewModelService basketViewModelService,
         SignInManager<ApplicationUser> signInManager,
         IOrderService orderService,
+        IOrderUploadService orderUploadService,
+        ICosmosDbService cosmosDbService,
         IAppLogger<CheckoutModel> logger)
     {
         _basketService = basketService;
         _signInManager = signInManager;
         _orderService = orderService;
         _basketViewModelService = basketViewModelService;
+        _orderUploadService = orderUploadService;
+        _cosmosDbService = cosmosDbService;
         _logger = logger;
     }
 
@@ -53,6 +64,16 @@ public class CheckoutModel : PageModel
             }
 
             var updateModel = items.ToDictionary(b => b.Id.ToString(), b => b.Quantity);
+
+            var orderDetails = new OrderDetails
+            { 
+                Id = BasketModel.Id,
+                Address = new Address("123 Main St.", "Kent", "OH", "United States", "44240"),
+                Items = BasketModel.Items.Select(x => new Item { Id = x.Id, Quantity = x.Quantity}).ToList(),
+                FinalPrice = BasketModel.Total() };
+
+            await _cosmosDbService.SaveOrderDetailsToDb(orderDetails);
+
             await _basketService.SetQuantities(BasketModel.Id, updateModel);
             await _orderService.CreateOrderAsync(BasketModel.Id, new Address("123 Main St.", "Kent", "OH", "United States", "44240"));
             await _basketService.DeleteBasketAsync(BasketModel.Id);
@@ -66,6 +87,19 @@ public class CheckoutModel : PageModel
 
         return RedirectToPage("Success");
     }
+
+    //private async Task UploadToOrderItemsReserver(OrderModel orderItems)
+    //{
+    //    using (HttpClient httpClient = new HttpClient()) { 
+
+    //        var functionurl = "https://eshoponwebtaskfunctionapp.azurewebsites.net/api/OrderModelUpload?code=-vr_jqDEcT_lMruys_-yaUPvrxV1H78BYyQJQk4y8qWgAzFuom9LlA%3D%3D";
+
+    //        //var content = new StringContent(JsonSerializer.Serialize(orderItems), Encoding.UTF8, "application/json");
+
+    //        HttpResponseMessage response = httpClient.PostAsJsonAsync(functionurl, orderItems).Result;
+    //        _logger.LogInformation(response.Content.ToString());
+    //    }
+    //}
 
     private async Task SetBasketModelAsync()
     {
