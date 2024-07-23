@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
-using Microsoft.eShopWeb.Web.Pages.Basket;
 
 namespace Microsoft.eShopWeb.ApplicationCore.Services;
 public class CosmosDbService : ICosmosDbService
@@ -24,7 +23,7 @@ public class CosmosDbService : ICosmosDbService
         using (HttpClient httpClient = new HttpClient())
         {
 
-            var functionurl = "https://eshoponwebtaskfunctionapp.azurewebsites.net/api/OrderModelUpload?code=-vr_jqDEcT_lMruys_-yaUPvrxV1H78BYyQJQk4y8qWgAzFuom9LlA%3D%3D";
+            var functionurl = "https://eshoponwebtaskfunctionap20240723182225.azurewebsites.net/api/UploadToCosmosDb?code=1FzsHTCvQIic2xikq-UlkBhOEiG9lYc4x-I96d641uLMAzFuKac_SQ%3D%3D";
 
             HttpResponseMessage response = httpClient.PostAsJsonAsync(functionurl, orderDetails).Result;
             _logger.LogInformation(response.Content.ToString());

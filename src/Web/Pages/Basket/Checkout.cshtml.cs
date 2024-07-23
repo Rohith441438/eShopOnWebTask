@@ -33,6 +33,7 @@ public class CheckoutModel : PageModel
         SignInManager<ApplicationUser> signInManager,
         IOrderService orderService,
         IOrderUploadService orderUploadService,
+        ICosmosDbService cosmosDbService,
         IAppLogger<CheckoutModel> logger)
     {
         _basketService = basketService;
@@ -40,6 +41,7 @@ public class CheckoutModel : PageModel
         _orderService = orderService;
         _basketViewModelService = basketViewModelService;
         _orderUploadService = orderUploadService;
+        _cosmosDbService = cosmosDbService;
         _logger = logger;
     }
 
