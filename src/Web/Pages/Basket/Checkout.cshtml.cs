@@ -25,6 +25,7 @@ public class CheckoutModel : PageModel
     private string? _username = null;
     private readonly IBasketViewModelService _basketViewModelService;
     private readonly IOrderUploadService _orderUploadService;
+    private readonly ICosmosDbService _cosmosDbService;
     private readonly IAppLogger<CheckoutModel> _logger;
 
     public CheckoutModel(IBasketService basketService,
@@ -61,15 +62,15 @@ public class CheckoutModel : PageModel
             }
 
             var updateModel = items.ToDictionary(b => b.Id.ToString(), b => b.Quantity);
-            
-            var orderItems = new OrderModel
-            {
-                OrderId = BasketModel.Id,
-                UserId = BasketModel.BuyerId,
-                Items = items.Select(x => new Item { Id = x.Id, Quantity = x.Quantity })
-            };
 
-            await _orderUploadService.UploadToOrderItemsReserver(orderItems);
+            var orderDetails = new OrderDetails
+            { 
+                Id = BasketModel.Id,
+                Address = new Address("123 Main St.", "Kent", "OH", "United States", "44240"),
+                Items = BasketModel.Items.Select(x => new Item { Id = x.Id, Quantity = x.Quantity}).ToList(),
+                FinalPrice = BasketModel.Total() };
+
+            await _cosmosDbService.SaveOrderDetailsToDb(orderDetails);
 
             await _basketService.SetQuantities(BasketModel.Id, updateModel);
             await _orderService.CreateOrderAsync(BasketModel.Id, new Address("123 Main St.", "Kent", "OH", "United States", "44240"));
