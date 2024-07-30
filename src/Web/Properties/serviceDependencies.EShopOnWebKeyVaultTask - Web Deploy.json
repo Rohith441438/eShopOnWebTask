@@ -1,0 +1,37 @@
+{
+  "dependencies": {
+    "secrets1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/EShopOnWebKeyVaultTask/providers/Microsoft.ServiceLinker/linkers/KeyVaultUri_BD7625A5AD",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.KeyVault/vaults/EShopOnWebKeyVaultNew",
+      "type": "secrets.keyVault",
+      "connectionId": "KeyVaultUri",
+      "dynamicId": null
+    },
+    "identityapp1": {
+      "connectionInfo": "App registration: EShopOnWebKeyVaultTask, Tenant: EPAM (EPAM.onmicrosoft.com - Microsoft Entra ID)",
+      "type": "identityapp.default"
+    },
+    "mssql2": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/EShopOnWebKeyVaultTask/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsIdentityConnection_7AC3A68AD4",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/keyvaulttaskdbserver/databases/KeyVaultTaskIdentityDatabase",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:IdentityConnection",
+      "dynamicId": null
+    },
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/EShopOnWebKeyVaultTask/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsCatalogConnectionNew_C3F4932413",
+      "secretStore": "AzureKeyVault",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/keyvaulttaskdbserver/databases/KeyVaultTaskCatalogDatabase",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:CatalogConnectionNew"
+    },
+    "appInsights1": {
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/microsoft.insights/components/AppInsights",
+      "type": "appInsights.azure",
+      "connectionId": "APPLICATIONINSIGHTS_CONNECTION_STRING"
+    }
+  }
+}
