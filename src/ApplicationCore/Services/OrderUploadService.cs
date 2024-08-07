@@ -4,7 +4,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
 using Microsoft.eShopWeb.ApplicationCore.Entities.BasketAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 
@@ -18,17 +20,28 @@ public class OrderUploadService : IOrderUploadService
         _logger = logger;
     }
 
-    public async Task UploadToOrderItemsReserver(OrderModel orderItems)
+    public async Task UploadOrderToServiceBusQueue(OrderModel orderItems)
     {
-        using (HttpClient httpClient = new HttpClient())
+        var content = new StringContent(JsonSerializer.Serialize(orderItems), Encoding.UTF8, "application/json");
+        var connectionString = "Endpoint=sb://servicebusdemorohith.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=ea1IWccjcSUzRqXpzAs4a5p2syCL8wYaU+ASbAqPFa4=";
+        var queueName = "OrderQueue";
+
+        await using var client = new ServiceBusClient(connectionString);
+        await using var serviceBusSender = client.CreateSender(queueName);
+
+        try
         {
-
-            var functionurl = "https://eshoponwebtaskfunctionapp.azurewebsites.net/api/OrderModelUpload?code=-vr_jqDEcT_lMruys_-yaUPvrxV1H78BYyQJQk4y8qWgAzFuom9LlA%3D%3D";
-
-            //var content = new StringContent(JsonSerializer.Serialize(orderItems), Encoding.UTF8, "application/json");
-
-            HttpResponseMessage response = httpClient.PostAsJsonAsync(functionurl, orderItems).Result;
-            _logger.LogInformation(response.Content.ToString());
+            var message = new ServiceBusMessage(content.ToString());
+            await serviceBusSender.SendMessageAsync(message);
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+        finally
+        {
+            await serviceBusSender.DisposeAsync();
+            await client.DisposeAsync();
         }
     }
 }

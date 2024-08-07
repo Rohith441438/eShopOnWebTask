@@ -4,5 +4,5 @@ using Microsoft.eShopWeb.ApplicationCore.Services;
 namespace Microsoft.eShopWeb.ApplicationCore.Interfaces;
 public interface IOrderUploadService
 {
-    Task UploadToOrderItemsReserver(OrderModel orderItems);
+    Task UploadOrderToServiceBusQueue(OrderModel orderItems);
 }
