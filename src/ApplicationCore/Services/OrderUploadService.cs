@@ -23,7 +23,7 @@ public class OrderUploadService : IOrderUploadService
         using (HttpClient httpClient = new HttpClient())
         {
 
-            var functionurl = "https://eshoponwebtaskfunctionapp.azurewebsites.net/api/OrderModelUpload?code=-vr_jqDEcT_lMruys_-yaUPvrxV1H78BYyQJQk4y8qWgAzFuom9LlA%3D%3D";
+            var functionurl = "https://eshoponwebtaskfunctionapp.azurewebsites.net/api/UploadToCosmosDb?code=SmeyVz7GRY9Xa7D9zt01JJTQwIa-F3azZvVa1XB-nAIMAzFukb0L1g%3D%3D";
 
             //var content = new StringContent(JsonSerializer.Serialize(orderItems), Encoding.UTF8, "application/json");
 
