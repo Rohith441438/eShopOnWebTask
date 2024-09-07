@@ -22,6 +22,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MinimalApi.Endpoint.Configurations.Extensions;
 using MinimalApi.Endpoint.Extensions;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Identity.Web;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +71,8 @@ builder.Services.AddAuthentication(config =>
         ValidateAudience = false
     };
 });
+   // .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+// .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
 const string CORS_POLICY = "CorsPolicy";
 builder.Services.AddCors(options =>
@@ -80,6 +85,8 @@ builder.Services.AddCors(options =>
             corsPolicyBuilder.AllowAnyHeader();
         });
 });
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
 
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
@@ -122,6 +129,15 @@ builder.Services.AddSwaggerGen(c =>
             });
 });
 
+builder.Services.AddApplicationInsightsTelemetry(new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions
+{
+    ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]
+});
+builder.Services.AddApplicationInsightsTelemetry(new Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions
+{
+    ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]
+});
+
 var app = builder.Build();
 
 app.Logger.LogInformation("PublicApi App created...");
@@ -159,6 +175,8 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseCors(CORS_POLICY);
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

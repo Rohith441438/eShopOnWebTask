@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Build.Framework;
 using Microsoft.eShopWeb.ApplicationCore.Entities;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Specifications;
+using Microsoft.Extensions.Logging;
 using MinimalApi.Endpoint;
 
 namespace Microsoft.eShopWeb.PublicApi.CatalogItemEndpoints;
@@ -19,11 +22,16 @@ public class CatalogItemListPagedEndpoint : IEndpoint<IResult, ListPagedCatalogI
 {
     private readonly IUriComposer _uriComposer;
     private readonly IMapper _mapper;
+    private readonly IAppLogger<CatalogItemListPagedEndpoint> _appLogger;
 
-    public CatalogItemListPagedEndpoint(IUriComposer uriComposer, IMapper mapper)
+    public CatalogItemListPagedEndpoint(
+        IUriComposer uriComposer,
+        IMapper mapper,
+        IAppLogger<CatalogItemListPagedEndpoint> appLogger)
     {
         _uriComposer = uriComposer;
         _mapper = mapper;
+        _appLogger = appLogger;
     }
 
     public void AddRoute(IEndpointRouteBuilder app)
@@ -39,6 +47,7 @@ public class CatalogItemListPagedEndpoint : IEndpoint<IResult, ListPagedCatalogI
 
     public async Task<IResult> HandleAsync(ListPagedCatalogItemRequest request, IRepository<CatalogItem> itemRepository)
     {
+        //_appLogger.LogWarning("Rohith is here at logger");
         await Task.Delay(1000);
         var response = new ListPagedCatalogItemResponse(request.CorrelationId());
 
@@ -52,6 +61,8 @@ public class CatalogItemListPagedEndpoint : IEndpoint<IResult, ListPagedCatalogI
             typeId: request.CatalogTypeId);
 
         var items = await itemRepository.ListAsync(pagedSpec);
+
+        _appLogger.LogInformation($"{items.Count} items retrieved from database");
 
         response.CatalogItems.AddRange(items.Select(_mapper.Map<CatalogItemDto>));
         foreach (CatalogItemDto item in response.CatalogItems)
