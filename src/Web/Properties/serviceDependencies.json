@@ -1,7 +1,14 @@
 {
   "dependencies": {
-    "identityapp1": {
-      "type": "identityapp"
+    "secrets1": {
+      "type": "secrets",
+      "connectionId": "VaultUri",
+      "dynamicId": null
+    },
+    "secrets2": {
+      "type": "secrets",
+      "connectionId": "VaultUri",
+      "dynamicId": null
     },
     "mssql1": {
       "type": "mssql",
@@ -12,10 +19,6 @@
       "type": "mssql",
       "connectionId": "ConnectionStrings:IdentityConnection",
       "dynamicId": null
-    },
-    "secrets1": {
-      "type": "secrets",
-      "connectionId": "AZURE_KEY_VAULT_ENDPOINT"
     }
   }
 }
