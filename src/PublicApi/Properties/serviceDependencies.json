@@ -9,6 +9,10 @@
       "type": "mssql",
       "connectionId": "ConnectionStrings:IdentityConnection",
       "dynamicId": null
+    },
+    "appInsights1": {
+      "type": "appInsights",
+      "connectionId": "APPLICATIONINSIGHTS_CONNECTION_STRING"
     }
   }
 }
