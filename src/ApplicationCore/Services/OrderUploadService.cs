@@ -4,7 +4,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
 using Microsoft.eShopWeb.ApplicationCore.Entities.BasketAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 
@@ -29,6 +31,31 @@ public class OrderUploadService : IOrderUploadService
 
             HttpResponseMessage response = httpClient.PostAsJsonAsync(functionurl, orderItems).Result;
             _logger.LogInformation(response.Content.ToString());
+        }
+    }
+
+    public async Task UploadOrderToServiceBusQueue(OrderModel orderItems)
+    {
+        var content = new StringContent(JsonSerializer.Serialize(orderItems), Encoding.UTF8, "application/json");
+        var connectionString = "Endpoint=sb://eshoponwebservicebus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=jFTPbniVKGJQDwxzrr/uqh9wjs+1bGxx7+ASbBW/X+8=";
+        var queueName = "OrderQueue";
+
+        await using var client = new ServiceBusClient(connectionString);
+        await using var serviceBusSender = client.CreateSender(queueName);
+
+        try
+        {
+            var message = new ServiceBusMessage(content.ToString());
+            await serviceBusSender.SendMessageAsync(message);
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+        finally
+        {
+            await serviceBusSender.DisposeAsync();
+            await client.DisposeAsync();
         }
     }
 }
